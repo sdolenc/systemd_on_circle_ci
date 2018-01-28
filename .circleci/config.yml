@@ -1,0 +1,26 @@
+# Python CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-python/ for more details
+#
+version: 2
+jobs:
+  build:
+    machine: true
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - run: |
+          docker pull solita/ubuntu-systemd:16.04
+          docker run --rm --privileged -v /:/host solita/ubuntu-systemd:16.04 setup
+          docker run -d --name stepdo0 --security-opt seccomp=unconfined --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro -t solita/ubuntu-systemd:16.04
+          docker ps -a
+          # Prepare cgroup on the host at /tmp/cgroup to avoid error: "failed to connect to bus: no such file or directory"
+          sudo mkdir -p /tmp/cgroup/systemd && sudo mount -t cgroup systemd /tmp/cgroup/systemd -o ro,noexec,nosuid,nodev,none,name=systemd
+
+      # run tests!
+      - run:
+          name: run tests
+          command: sudo bash ./test.sh
