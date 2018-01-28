@@ -35,6 +35,9 @@ else
     exit 1
 fi
 
+exit 0
+#todo: below
+
 # clone repo
 if pushd /var/tmp && git clone --depth=50 --branch=$BRANCH https://github.com/${REPO} ; then
     echo "success: clone repo inside of container"
