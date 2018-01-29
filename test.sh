@@ -23,7 +23,7 @@ get_repo()
     repoInfo=$(git config --get remote.origin.url)
 
     # Convert ssh repo url into https
-    if grep "@.*:.*/" $repoInfo > /dev/null 2>&1 ; then
+    if echo $repoInfo | grep "@.*:.*/" > /dev/null 2>&1 ; then
         echo $repoInfo | tr @ \n | tr : / | tail -1
         return
     fi
