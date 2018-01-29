@@ -65,7 +65,7 @@ else
 fi
 
 # clone repo
-if pushd /var/tmp && git clone --depth=50 --branch=$BRANCH $REPO ; then
+if pushd /var/tmp && git clone --depth=50 --branch=$BRANCH https://${REPO} ; then
     echo "success: clone repo inside of container"
 else
     echo "FAILURE: can't clone repo inside of container"
