@@ -3,6 +3,10 @@
 
 # Determine the appropriate github branch to clone using environment variables
 
+env
+exit 0
+#todo: below
+
 BRANCH=${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}
 REPO=$TRAVIS_REPO_SLUG
 FOLDER=$(basename $REPO)
@@ -18,10 +22,6 @@ else
     echo "FAILURE: no systemd"
     exit 1
 fi
-
-env
-exit 0
-#todo: below
 
 # test networking
 apt update
