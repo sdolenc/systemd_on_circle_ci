@@ -18,9 +18,22 @@ get_branch()
     echo "$branchInfo"
 }
 
+get_repo()
+{
+    repoInfo=$(git config --get remote.origin.url)
+
+    # Convert ssh repo url into https
+    if [[ grep "@.*:.*/" $repoInfo > /dev/null 2>&1 ]] ; then
+        echo $repoInfo | tr @ \n | tr : / | tail -1
+        return
+    fi
+
+    echo "$repoInfo"
+}
+
 BRANCH=$(get_branch)
-REPO=$(git config --get remote.origin.url)
-FOLDER=$(basename $REPO)
+REPO=$(get_repo)
+FOLDER=$(basename $REPO .git)
 echo "BRANCH=$BRANCH, REPO=$REPO, FOLDER=$FOLDER"
 
 # Connect to container
