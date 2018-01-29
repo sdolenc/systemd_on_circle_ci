@@ -1,14 +1,25 @@
 #!/usr/bin/env bash
 # Licensed under the MIT license. See LICENSE file on the project webpage for details.
 
-# Determine the appropriate github branch to clone using environment variables
+# Determine the appropriate github branch to clone
 
-env
-exit 0
-#todo: below
+get_branch()
+{
+    prefix='* '
 
-BRANCH=${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}
-REPO=$TRAVIS_REPO_SLUG
+    # Current branch is prefixed with an asterisk. Remove it.
+    branchInfo=`git branch | grep "$prefix" | sed "s/$prefix//g"`
+
+    # Ensure branch information is useful.
+    if [[ -z "$branchInfo" ]] || [[ $branchInfo == *"no branch"* ]] || [[ $branchInfo == *"detached"* ]] ; then
+        branchInfo="master"
+    fi
+
+    echo "$branchInfo"
+}
+
+BRANCH=$(get_branch)
+REPO=$(git config --get remote.origin.url)
 FOLDER=$(basename $REPO)
 echo "BRANCH=$BRANCH, REPO=$REPO, FOLDER=$FOLDER"
 
@@ -41,7 +52,7 @@ else
 fi
 
 # clone repo
-if pushd /var/tmp && git clone --depth=50 --branch=$BRANCH https://github.com/${REPO} ; then
+if pushd /var/tmp && git clone --depth=50 --branch=$BRANCH $REPO ; then
     echo "success: clone repo inside of container"
 else
     echo "FAILURE: can't clone repo inside of container"
