@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Licensed under the MIT license. See LICENSE file on the project webpage for details.
 
-# Determine the appropriate github branch to clone using Travis environment variables
+# Determine the appropriate github branch to clone using environment variables
+
 BRANCH=${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}
 REPO=$TRAVIS_REPO_SLUG
 FOLDER=$(basename $REPO)
@@ -17,6 +18,10 @@ else
     echo "FAILURE: no systemd"
     exit 1
 fi
+
+env
+exit 0
+#todo: below
 
 # test networking
 apt update
@@ -34,9 +39,6 @@ else
     echo "FAILURE: can't apt install git"
     exit 1
 fi
-
-exit 0
-#todo: below
 
 # clone repo
 if pushd /var/tmp && git clone --depth=50 --branch=$BRANCH https://github.com/${REPO} ; then
