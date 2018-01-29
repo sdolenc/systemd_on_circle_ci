@@ -1,10 +1,39 @@
 #!/usr/bin/env bash
 # Licensed under the MIT license. See LICENSE file on the project webpage for details.
 
-# Determine the appropriate github branch to clone using Travis environment variables
-BRANCH=${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}
-REPO=$TRAVIS_REPO_SLUG
-FOLDER=$(basename $REPO)
+# Determine the appropriate github branch to clone
+
+get_branch()
+{
+    prefix='* '
+
+    # Current branch is prefixed with an asterisk. Remove it.
+    branchInfo=`git branch | grep "$prefix" | sed "s/$prefix//g"`
+
+    # Ensure branch information is useful.
+    if [[ -z "$branchInfo" ]] || [[ $branchInfo == *"no branch"* ]] || [[ $branchInfo == *"detached"* ]] ; then
+        branchInfo="master"
+    fi
+
+    echo "$branchInfo"
+}
+
+get_repo()
+{
+    repoInfo=$(git config --get remote.origin.url)
+
+    # Convert ssh repo url into https
+    if echo $repoInfo | grep "@.*:.*/" > /dev/null 2>&1 ; then
+        echo $repoInfo | tr @ "\n" | tr : / | tail -1
+        return
+    fi
+
+    echo "$repoInfo"
+}
+
+BRANCH=$(get_branch)
+REPO=$(get_repo)
+FOLDER=$(basename $REPO .git)
 echo "BRANCH=$BRANCH, REPO=$REPO, FOLDER=$FOLDER"
 
 # Connect to container
@@ -35,11 +64,8 @@ else
     exit 1
 fi
 
-exit 0
-#todo: below
-
 # clone repo
-if pushd /var/tmp && git clone --depth=50 --branch=$BRANCH https://github.com/${REPO} ; then
+if pushd /var/tmp && git clone --depth=50 --branch=$BRANCH https://${REPO} ; then
     echo "success: clone repo inside of container"
 else
     echo "FAILURE: can't clone repo inside of container"
